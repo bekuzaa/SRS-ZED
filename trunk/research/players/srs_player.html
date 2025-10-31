@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRS Live Player - Modern Streaming Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-light: #ffffff;
+            --text-dark: #2d3748;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            color: var(--text-light);
+            padding-top: 80px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .brand:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .nav-menu li a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-menu li a:hover,
+        .nav-menu li.active a {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 2rem 0 3rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Player Section */
+        .player-section {
+            margin-bottom: 2rem;
+        }
+
+        .player-container {
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        #video_player,
+        #audio_player {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 400px;
+        }
+
+        #audio_player {
+            min-height: 60px;
+        }
+
+        .player-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Controls Section */
+        .controls-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-light);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: var(--text-light);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: var(--text-light);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.3) 0%, rgba(0, 242, 254, 0.3) 100%);
+            border-left-color: #4facfe;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.3) 0%, rgba(34, 197, 94, 0.3) 100%);
+            border-left-color: #34d399;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%);
+            border-left-color: #fbbf24;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.3) 0%, rgba(245, 87, 108, 0.3) 100%);
+            border-left-color: #f5576c;
+        }
+
+        .alert .close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .alert .close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Share Link */
+        .share-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-link {
+            color: #4facfe;
+            text-decoration: none;
+            word-break: break-all;
+            transition: color 0.3s ease;
+        }
+
+        .share-link:hover {
+            color: #00f2fe;
+        }
+
+        /* Info Section */
+        .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .info-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-section ul li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-section ul li:last-child {
+            border-bottom: none;
+        }
+
+        .info-section ul li i {
+            color: #4facfe;
+        }
+
+        .info-section a {
+            color: #4facfe;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .info-section a:hover {
+            color: #00f2fe;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--text-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .navbar-content {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .controls-section {
+                flex-direction: column;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .glass-card {
+                padding: 1.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* Utility Classes */
+        .hide { display: none; }
+        .show { display: block; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <img style="width: 0px; height: 0px;" src='//ossrs.net/gif/v1/sls.gif?site=ossrs.net&path=/player/srsplayer'/>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a class="brand" href="https://github.com/ossrs/srs" target="_blank">
+                <i class="fas fa-video"></i>
+                SRS Player
+            </a>
+            <ul class="nav-menu">
+                <li class="active">
+                    <a href="srs_player.html">
+                        <i class="fas fa-play-circle"></i>
+                        Live Player
+                    </a>
+                </li>
+                <li>
+                    <a href="whip.html">
+                        <i class="fas fa-broadcast-tower"></i>
+                        WHIP
+                    </a>
+                </li>
+                <li>
+                    <a href="whep.html">
+                        <i class="fas fa-stream"></i>
+                        WHEP
+                    </a>
+                </li>
+                <li>
+                    <a href="http://ossrs.net/srs.release/releases/app.html">
+                        <i class="fas fa-mobile-alt"></i>
+                        Mobile App
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/ossrs/srs" target="_blank">
+                        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ossrs/srs?style=social">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1 class="hero-title">
+                <i class="fas fa-broadcast-tower"></i>
+                SRS Live Streaming Player
+            </h1>
+            <p class="hero-subtitle">
+                Experience high-quality, low-latency live streaming with modern web technologies
+            </p>
+        </div>
+
+        <!-- Alert Section -->
+        <div id="main_info" class="alert alert-info">
+            <i class="fas fa-info-circle alert-icon"></i>
+            <div>
+                <strong>Usage:</strong> Enter the HTTP-FLV/HLS URL and click "Play" to start playing the video.
+            </div>
+            <button type="button" class="close" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+
+        <!-- Player Card -->
+        <div class="glass-card">
+            <!-- Controls Section -->
+            <div class="controls-section">
+                <div class="input-group">
+                    <label class="input-label">
+                        <i class="fas fa-link"></i>
+                        Stream URL
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-globe input-icon"></i>
+                        <input
+                            type="text"
+                            id="txt_url"
+                            placeholder="Enter HTTP-FLV, HLS, or HTTP-TS URL..."
+                            value=""
+                        >
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="btn_play">
+                        <i class="fas fa-play"></i>
+                        Play Stream
+                    </button>
+                    <button class="btn btn-danger hide" id="btn_stop">
+                        <i class="fas fa-stop"></i>
+                        Stop
+                    </button>
+                </div>
+            </div>
+
+            <!-- Player Container -->
+            <div class="player-section">
+                <div class="player-container">
+                    <video id="video_player" controls autoplay muted></video>
+                    <div class="player-overlay">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                </div>
+                <div class="player-container hide" id="audio_container">
+                    <audio id="audio_player" controls autoplay></audio>
+                </div>
+            </div>
+
+            <!-- Share Section -->
+            <div class="share-section">
+                <strong><i class="fas fa-share-alt"></i> Share:</strong>
+                <a href="#" id="link_url" class="share-link" target="_blank">
+                    Right-click and copy this link to share
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">Ultra Low Latency</h3>
+                <p class="feature-desc">Experience real-time streaming with latency as low as 1 second using WebRTC</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-th"></i>
+                </div>
+                <h3 class="feature-title">Multiple Protocols</h3>
+                <p class="feature-desc">Support for HTTP-FLV, HLS, HTTP-TS, WebRTC, and more</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Fully Responsive</h3>
+                <p class="feature-desc">Works seamlessly across desktop, tablet, and mobile devices</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Secure & Reliable</h3>
+                <p class="feature-desc">Built with modern security standards and reliable streaming technology</p>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="glass-card info-section">
+            <h3><i class="fas fa-lightbulb"></i> Recommended Players & Technologies</h3>
+            <ul>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <strong>flv.js</strong> - HTML5/MSE for playing HTTP-FLV
+                    <a href="https://github.com/bilibili/flv.js" target="_blank">(GitHub)</a>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <strong>mpegts.js</strong> - HTML5/MSE for playing HTTP-TS
+                    <a href="https://github.com/xqq/mpegts.js" target="_blank">(GitHub)</a>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <strong>hls.js</strong> - HTML5/MSE for playing HLS
+                    <a href="https://github.com/video-dev/hls.js/" target="_blank">(GitHub)</a>
+                </li>
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <strong>dash.js</strong> - HTML5/MSE for playing MPEG-DASH
+                    <a href="https://github.com/Dash-Industry-Forum/dash.js" target="_blank">(GitHub)</a>
+                </li>
+            </ul>
+
+            <h3 style="margin-top: 2rem;"><i class="fas fa-info-circle"></i> Streaming Recommendations</h3>
+            <ul>
+                <li>
+                    <i class="fas fa-angle-right"></i>
+                    For <strong>low-latency live streaming (3-5 seconds)</strong>, use HTTP-FLV with flv.js player
+                </li>
+                <li>
+                    <i class="fas fa-angle-right"></i>
+                    For <strong>better compatibility (5-10 seconds latency)</strong>, use HLS with hls.js player
+                </li>
+                <li>
+                    <i class="fas fa-angle-right"></i>
+                    For <strong>ultra-low latency (within 1 second)</strong>, use WebRTC with RTC player
+                </li>
+                <li>
+                    <i class="fas fa-angle-right"></i>
+                    For <strong>audio-only streaming</strong>, use HTTP-AAC or HTTP-MP3 formats
+                </li>
+            </ul>
+        </div>
+
+        <!-- Flash Alert (Hidden by default) -->
+        <div id="main_flash_alert" class="alert alert-danger hide">
+            <i class="fas fa-exclamation-triangle alert-icon"></i>
+            <div>
+                <p>
+                    <strong>Flash is no longer supported!</strong>
+                    <a href="https://www.adobe.com/products/flashplayer/end-of-life.html" target="_blank">Adobe Flash has reached end-of-life</a>.
+                </p>
+                <p style="margin-top: 0.5rem;">
+                    Please use modern HTML5 players like flv.js, hls.js, or WebRTC for streaming.
+                </p>
+            </div>
+            <button type="button" class="close" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><strong>SRS (Simple Realtime Server)</strong> - Professional Live Streaming Server</p>
+            <div class="footer-links">
+                <a href="https://github.com/ossrs/srs" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="http://ossrs.net/" target="_blank">
+                    <i class="fas fa-home"></i> Official Website
+                </a>
+                <a href="https://github.com/ossrs/srs/wiki" target="_blank">
+                    <i class="fas fa-book"></i> Documentation
+                </a>
+                <a href="https://github.com/ossrs/srs/releases" target="_blank">
+                    <i class="fas fa-download"></i> Releases
+                </a>
+            </div>
+            <p>&copy; 2013-2024 SRS Team. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/srs.page.js"></script>
+    <script type="text/javascript" src="js/srs.utility.js"></script>
+    <script type="text/javascript" src="js/winlin.utility.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            // Parse URL parameters
+            var query = parse_query_string();
+
+            // Set default URL or URL from query string
+            if (query.url) {
+                $('#txt_url').val(decodeURIComponent(query.url));
+            } else if (query.stream) {
+                var defaultUrl = window.location.protocol + '//' + window.location.hostname + ':8080/' + query.stream + '.flv';
+                $('#txt_url').val(defaultUrl);
+            }
+
+            // Play button click handler
+            $('#btn_play').click(function(){
+                var url = $('#txt_url').val();
+                if (!url) {
+                    alert('Please enter a valid stream URL');
+                    return;
+                }
+
+                // Update share link
+                var shareUrl = window.location.origin + window.location.pathname + '?url=' + encodeURIComponent(url);
+                $('#link_url').attr('href', shareUrl).text(shareUrl);
+
+                // Determine if it's audio or video
+                var isAudio = url.indexOf('.mp3') > -1 || url.indexOf('.aac') > -1 || url.indexOf('audio') > -1;
+
+                if (isAudio) {
+                    $('#video_player').parent().hide();
+                    $('#audio_container').removeClass('hide').show();
+                    $('#audio_player').attr('src', url);
+                } else {
+                    $('#audio_container').hide();
+                    $('#video_player').parent().show();
+                    $('#video_player').attr('src', url

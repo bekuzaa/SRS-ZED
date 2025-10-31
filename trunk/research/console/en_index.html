@@ -1,0 +1,328 @@
+<!doctype html>
+<html ng-app="scApp">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SRS Console - Modern Dashboard</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="js/3rdparty/bootstrap.min.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="js/srs.console.modern.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <script
+            type="text/javascript"
+            src="js/3rdparty/angular.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="js/3rdparty/angular-route.min.js"
+        ></script>
+        <script
+            type="text/javascript"
+            src="js/3rdparty/angular-resource.min.js"
+        ></script>
+        <script type="text/javascript" src="js/winlin.utility.js"></script>
+        <script type="text/javascript" src="js/bravo_alert/alert.js"></script>
+        <script
+            type="text/javascript"
+            src="js/bravo_popover/popover.js"
+        ></script>
+        <script type="text/javascript" src="js/srs.en.js"></script>
+        <script type="text/javascript" src="js/srs.console.js"></script>
+    </head>
+    <body ng-controller="CSCMain">
+        <img
+            style="width: 0px; height: 0px"
+            src="//ossrs.net/gif/v1/sls.gif?site=ossrs.net&path=/console/enindex"
+        />
+
+        <!-- Modern Navigation Bar -->
+        <nav class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a
+                        class="brand"
+                        href="https://github.com/ossrs/srs"
+                        target="_blank"
+                    >
+                        <i class="fas fa-video"></i> SRS
+                    </a>
+                    <ul class="nav">
+                        <li class="{{'/console'| sc_filter_nav_active}}">
+                            <a
+                                href="javascript:void(0)"
+                                ng-click="gogogo('/connect')"
+                            >
+                                <i class="fas fa-plug"></i> Connect
+                            </a>
+                        </li>
+                        <li class="{{'/summaries'| sc_filter_nav_active}}">
+                            <a
+                                href="javascript:void(0)"
+                                ng-click="gogogo('/summaries')"
+                            >
+                                <i class="fas fa-chart-line"></i> Summary
+                            </a>
+                        </li>
+                        <li class="{{'/vhosts'| sc_filter_nav_active}}">
+                            <a
+                                href="javascript:void(0)"
+                                ng-click="gogogo('/vhosts')"
+                            >
+                                <i class="fas fa-server"></i> Vhosts
+                            </a>
+                        </li>
+                        <li class="{{'/streams'| sc_filter_nav_active}}">
+                            <a
+                                href="javascript:void(0)"
+                                ng-click="gogogo('/streams')"
+                            >
+                                <i class="fas fa-broadcast-tower"></i> Streams
+                            </a>
+                        </li>
+                        <li class="{{'/clients'| sc_filter_nav_active}}">
+                            <a
+                                href="javascript:void(0)"
+                                ng-click="gogogo('/clients')"
+                            >
+                                <i class="fas fa-users"></i> Clients
+                            </a>
+                        </li>
+                        <li class="{{'/configs'| sc_filter_nav_active}}">
+                            <a
+                                href="javascript:void(0)"
+                                ng-click="gogogo('/configs')"
+                            >
+                                <i class="fas fa-cog"></i> Configs
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://github.com/ossrs/srs"
+                                target="_blank"
+                            >
+                                <img
+                                    alt="GitHub Repo stars"
+                                    src="https://img.shields.io/github/stars/ossrs/srs?style=social"
+                                />
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="container-fluid">
+            <div ng-view></div>
+
+            <!-- Alert Messages with Modern Design -->
+            <div class="alert-container">
+                <div
+                    bravo-alert
+                    ng-repeat="log in logs"
+                    class="alert fade in {{log.level|sc_filter_log_level}}"
+                >
+                    <button type="button" class="close" data-dismiss="alert">
+                        ×
+                    </button>
+                    <i
+                        class="fas fa-info-circle"
+                        ng-if="log.level == 'info'"
+                    ></i>
+                    <i
+                        class="fas fa-check-circle"
+                        ng-if="log.level == 'success'"
+                    ></i>
+                    <i
+                        class="fas fa-exclamation-triangle"
+                        ng-if="log.level == 'warning'"
+                    ></i>
+                    <i
+                        class="fas fa-exclamation-circle"
+                        ng-if="log.level == 'error' || log.level == 'danger'"
+                    ></i>
+                    <strong>{{log.level}}:</strong> {{log.msg}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <i class="fas fa-video"></i>
+                        <span>SRS Streaming Server</span>
+                    </div>
+                    <ul class="footer-links">
+                        <li>&copy; SRS Team 2013-2024</li>
+                        <li class="muted">|</li>
+                        <li>
+                            <a href="http://ossrs.net/" target="_blank"
+                                ><i class="fas fa-home"></i> Official Site</a
+                            >
+                        </li>
+                        <li class="muted">|</li>
+                        <li>
+                            <a
+                                href="https://github.com/ossrs/srs"
+                                target="_blank"
+                                ><i class="fab fa-github"></i> GitHub</a
+                            >
+                        </li>
+                        <li class="muted">|</li>
+                        <li>
+                            <a
+                                href="https://github.com/ossrs/srs/releases"
+                                target="_blank"
+                                ><i class="fas fa-download"></i> Releases</a
+                            >
+                        </li>
+                        <li class="muted">|</li>
+                        <li>
+                            <a
+                                href="https://github.com/ossrs/srs/wiki"
+                                target="_blank"
+                                ><i class="fas fa-book"></i> Documentation</a
+                            >
+                        </li>
+                    </ul>
+                    <div class="footer-social">
+                        <a
+                            href="https://github.com/ossrs/srs"
+                            target="_blank"
+                            class="social-link"
+                        >
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a
+                            href="https://twitter.com/srs_server"
+                            target="_blank"
+                            class="social-link"
+                        >
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a
+                            href="http://ossrs.net/"
+                            target="_blank"
+                            class="social-link"
+                        >
+                            <i class="fas fa-globe"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <style>
+            /* Additional custom styles for footer */
+            .footer-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+            }
+
+            .footer-logo {
+                font-size: 1.5rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .footer-social {
+                display: flex;
+                gap: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            .social-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 50%;
+                color: var(--text-light);
+                text-decoration: none;
+                transition: var(--transition);
+                backdrop-filter: blur(10px);
+            }
+
+            .social-link:hover {
+                transform: translateY(-3px) scale(1.1);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+            }
+
+            .alert-container {
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 400px;
+            }
+
+            @media (max-width: 768px) {
+                .alert-container {
+                    left: 20px;
+                    right: 20px;
+                    max-width: none;
+                }
+
+                .footer-links {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .footer-links .muted {
+                    display: none;
+                }
+            }
+
+            /* Icon styling */
+            .nav li a i {
+                margin-right: 0.5rem;
+            }
+
+            /* Enhanced hover effects */
+            .nav li a {
+                display: flex;
+                align-items: center;
+            }
+
+            /* Smooth transitions for all interactive elements */
+            * {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* Prevent transition on page load */
+            .preload * {
+                transition: none !important;
+            }
+        </style>
+
+        <script>
+            // Remove preload class after page loads
+            window.addEventListener("load", function () {
+                document.body.classList.remove("preload");
+            });
+        </script>
+    </body>
+</html>
